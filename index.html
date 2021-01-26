@@ -1,0 +1,172 @@
+<html lang="en">
+<head>
+<title>Odoo Report Header Size Generator</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="odoo-header-gen.aitor-sama.es">
+<meta name="twitter:title" content="Odoo Report Header Size Generator">
+<meta name="twitter:description" content="Odoo Report Header Size Generator">
+<meta name="twitter:image" content="https://assets.codepen.io/3773301/internal/screenshots/pens/GRjVorV.default.png?fit=cover&amp;format=auto&amp;ha=false&amp;height=540&amp;quality=75&amp;v=2&amp;version=1611660110&amp;width=960">
+<meta property="og:image" content="https://assets.codepen.io/3773301/internal/screenshots/pens/GRjVorV.default.png?fit=cover&amp;format=auto&amp;ha=false&amp;height=540&amp;quality=75&amp;v=2&amp;version=1611660110&amp;width=960" itemprop="thumbnailUrl">
+<meta property="og:title" content="Odoo Report Header Size Generator">
+<meta property="og:url" content="https://odoo-header-gen.aitor-sama.es">
+<meta property="og:site_name" content="Odoo Report Header Size Generator">
+<meta property="og:description" content="Odoo Report Header Size Generator">
+<style>
+form {
+  display: grid;
+  grid-template-columns: 1fr repeat(2, 60px);
+  grid-template-rows: repeat(8, 1fr);
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  width: 240px;
+}
+form button {
+  grid-area: 5/1/6/4;
+}
+form label.marginTop {
+  grid-area: 1/1/2/2;
+}
+form label.marginBottom {
+  grid-area: 2/1/3/2;
+}
+form label.size {
+  grid-area: 3/1/4/2;
+}
+form label.dpi {
+  grid-area: 4/1/5/2;
+}
+form label.result {
+  grid-area: 6/1/6/4;
+}
+form label.resultmt {
+  grid-area: 7/1/7/2;
+}
+form label.resulths {
+  grid-area: 8/1/8/2;
+}
+form input {
+  min-width: 50px;
+  width: auto;
+}
+form input.marginTop {
+  grid-area: 1/2/2/3;
+}
+form input.marginBottom {
+  grid-area: 2/2/3/3;
+}
+form input.size {
+  grid-area: 3/2/4/3;
+}
+form input.dpi {
+  grid-area: 4/2/5/3;
+}
+form input.resultmt {
+  grid-area: 7/2/8/4;
+}
+form input.resulths {
+  grid-area: 8/2/9/4;
+}
+form select.marginTop {
+  grid-area: 1/3/2/4;
+}
+form select.marginBottom {
+  grid-area: 2/3/3/4;
+}
+form select.size {
+  grid-area: 3/3/4/4;
+}
+</style>
+</head>
+<body>
+<form lang="en-US" action="javascript:;" onsubmit="calculate(this);">
+  <label for="marginTop1" class="marginTop">Margen Superior</label>
+  <input name="marginTop1" id="marginTop1" required class="marginTop" type="number" />
+  <select name="marginTop2" required class="marginTop">
+    <option>px</option>
+    <option selected="selected">mm</option>
+  </select>
+
+  <label for="marginBottom1" class="marginBottom"> Margen Inferior</label>
+  <input name="marginBottom1" id="marginBottom1" required class="marginBottom" type="number" />
+  <select name="marginBottom2" required class="marginBottom">
+    <option>px</option>
+    <option selected="selected">mm</option>
+  </select>
+
+  <label for="size1" class="size"> Tamaño Cabezera</label>
+  <input name="size1" id="size1" required class="size" type="number" />
+  <select name="size2" required class="size">
+    <option selected="selected">px</option>
+    <option>mm</option>
+  </select>
+
+  <label for="dpi" class="dpi">DPI</label>
+  <input name="dpi" id="dpi" required class="dpi" type="number" />
+
+  <button type="submit"> Calcular</button>
+  <label class="result">Resultado:</label>
+  <label for="resultmt" class="resultmt">margin_top</label>
+  <input lang="en-150" pattern="[0-9]+([\.][0-9]+)?" step="any" readonly id="resultmt" class="resultmt" type="text" />
+  <label for="resulths" class="resulths">header_spacing</label>
+  <input lang="en" step="0.01" readonly id="resulths" class="resulths" type="text" />
+</form>
+<script>
+"use strict";
+function calculate(formElement) {
+    const elements = Array.from(formElement.elements);
+    const values = elements.slice(0, 7).map((x) => x.value);
+    const superior = values[0].toString() + values[1];
+    const inferior = values[2].toString() + values[3];
+    const size = values[4].toString() + values[5];
+    const dpi = Number(values[6]);
+    const result = reportCalculator(superior, inferior, size, dpi);
+    elements[8].value = result.margin_top;
+    elements[9].value = result.header_spacing;
+}
+function pixelOrMilimitertoMilimiter(value, type, dpi, cut = false) {
+    const num = cut
+        ? Number(value.slice(0, -2)) * 0.8
+        : Number(value.slice(0, -2));
+    if (type == "px") {
+        const pxDensity = 25.4 / dpi;
+        return num * pxDensity;
+    }
+    else {
+        return num;
+    }
+}
+function reportCalculator(headerTopMargin = "5mm", headerBottomMargin = "5mm", headerSize = "100px", dpi = 90) {
+    if (!(typeof headerTopMargin == "string" &&
+        typeof headerBottomMargin == "string" &&
+        typeof headerSize == "string" &&
+        typeof dpi == "number")) {
+        return "Error en Parametros";
+    }
+    else if (headerTopMargin.length < 3 ||
+        headerBottomMargin.length < 3 ||
+        headerSize.length < 3) {
+        return "Tamaños incorrectos, mm o px porfavor";
+    }
+    const headerTopMarginType = headerTopMargin.slice(-2);
+    const headerBottomMarginType = headerBottomMargin.slice(-2);
+    const headerSizeType = headerSize.slice(-2);
+    const acceptedValues = ["px", "mm"];
+    if (!(acceptedValues.includes(headerTopMarginType) &&
+        acceptedValues.includes(headerBottomMarginType) &&
+        acceptedValues.includes(headerSizeType))) {
+        return "Tamaños incorrectos, mm o px porfavor";
+    }
+    const top = pixelOrMilimitertoMilimiter(headerTopMargin, headerTopMarginType, dpi);
+    const bottom = pixelOrMilimitertoMilimiter(headerBottomMargin, headerBottomMarginType, dpi);
+    const size = pixelOrMilimitertoMilimiter(headerSize, headerSizeType, dpi, true);
+    return {
+        margin_top: top + bottom + size,
+        header_spacing: Math.floor(bottom + size)
+    };
+}
+</script>
+</body>
+</html>
