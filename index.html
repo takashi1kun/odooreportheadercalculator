@@ -109,9 +109,9 @@ form select.size {
   <button type="submit"> Calcular</button>
   <label class="result">Resultado:</label>
   <label for="resultmt" class="resultmt">margin_top</label>
-  <input lang="en-150" pattern="[0-9]+([\.][0-9]+)?" step="any" readonly id="resultmt" class="resultmt" type="text" />
+  <input readonly id="resultmt" class="resultmt" type="text" />
   <label for="resulths" class="resulths">header_spacing</label>
-  <input lang="en" step="0.01" readonly id="resulths" class="resulths" type="text" />
+  <input readonly id="resulths" class="resulths" type="text" />
 </form>
 <script>
 "use strict";
@@ -123,7 +123,7 @@ function calculate(formElement) {
     const size = values[4].toString() + values[5];
     const dpi = Number(values[6]);
     const result = reportCalculator(superior, inferior, size, dpi);
-    elements[8].value = result.margin_top;
+    elements[8].value = result.margin_top.toFixed(2);
     elements[9].value = result.header_spacing;
 }
 function pixelOrMilimitertoMilimiter(value, type, dpi, cut = false) {
